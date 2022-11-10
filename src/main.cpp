@@ -1,5 +1,5 @@
 #include <Arduino.h>
-#include <Servo.h>
+#include "../lib/Servo/Servo.h"
 
 Servo servo;
 int gesloten = 140;
@@ -24,5 +24,6 @@ void OpenKluis(){
 
 void loop() {
   // put your main code here, to run repeatedly:
-
+  SluitKluis();
+  OpenKluis();
 } 
