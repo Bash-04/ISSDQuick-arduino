@@ -2,8 +2,12 @@
 #include "../lib/Servo/Servo.h"
 #include "../lib/Keypad/Keypad.h"
 
-Servo servo;
-int gesloten = 140;
+Servo KluisjeA;
+Servo KluisjeB;
+int geslotenA = 140;
+int openA = 42;
+int geslotenB = 161;
+int openB = 90;
 
 const byte ROWS = 4; //four rows
 const byte COLS = 4; //four columns
@@ -20,71 +24,101 @@ byte colPins[COLS] = {9, 8, 7, 6};  //connect to the column pinouts of the keypa
 //initialize an instance of class NewKeypad
 Keypad customKeypad = Keypad( makeKeymap(hexaKeys), rowPins, colPins, ROWS, COLS);
 
-String wachtwoord = "0000";
-String codeNummer;
+String wachtwoordA[] = { "-0000", "-1234", "-4865200" };
+String wachtwoordB[] = { "-1111", "-4321", "-4802799" };
+String keyCombinatie = "-";
 
-// int wachtwoordCheck = 0;
+int wachtwoordCheck = 0;
 
 // Dit is de setup, de eerste code die uitgevoerd wordt
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600);
   Serial.println("Hello World");
-  servo.attach(3);
-  servo.write(gesloten);
+  KluisjeA.attach(2);
+  KluisjeB.attach(3);
+  KluisjeA.write(geslotenA);
+  KluisjeB.write(geslotenB);
 }
 
 
 
-// draai de Servo 140 graden betekent dat deze horizontaal staat gedraait
-void SluitKluis(char leesKey){
+// draai de Servo horizontaal
+void SluitKluis(Servo kluis, int slotkluis){
+    delay(500);
+    kluis.write(slotkluis);
+    keyCombinatie = "-";
+    Serial.println("");
+}
+
+
+
+// draai de Servo verticaal 
+void OpenKluis(Servo kluis, int slotkluis){
+  delay(500);
+  kluis.write(slotkluis);
+  keyCombinatie = "-";
+  Serial.println("");
+}
+
+
+
+void WachtwoordCheck(){
+  if (keyCombinatie == wachtwoordA[wachtwoordCheck])
+    {
+      OpenKluis(KluisjeA, openA);
+    }
+  else if (keyCombinatie == wachtwoordB[wachtwoordCheck])
+    {
+      OpenKluis(KluisjeB, openB);
+    }
+
+  while (keyCombinatie != wachtwoordA[wachtwoordCheck] && keyCombinatie != wachtwoordB[wachtwoordCheck])
+    {
+      wachtwoordCheck++;
+      if (keyCombinatie == wachtwoordA[wachtwoordCheck])
+      {
+        OpenKluis(KluisjeA, openA);
+      }
+      if (keyCombinatie == wachtwoordB[wachtwoordCheck])
+      {
+        OpenKluis(KluisjeB, openB);
+      }
+      else if (wachtwoordA[wachtwoordCheck] == "" && wachtwoordB[wachtwoordCheck] == "")
+      {
+        wachtwoordCheck = 0;
+        keyCombinatie = "-";
+        Serial.println("");
+        break;
+      }
+    }
+}
+
+
+
+void CheckKey(char leesKey){
   if (leesKey == '#')
   {
-    servo.write(140);
-    delay(800);
-    codeNummer = "";
-    Serial.println("");
+    SluitKluis(KluisjeA, geslotenA);
+    SluitKluis(KluisjeB, geslotenB);
   }
-}
-
-
-
-// draai de Servo 140 graden betekent dat deze verticaal staat gedraait
-void OpenKluis(){
-  servo.write(42);
-  delay(800);
-}
-
-
-
-// De functie om de ingedrukte key te printen en in de var "CodeStudentnummer" te plaatsen
-void codeStudentnummer(char leesKey){
-  if (leesKey){
+  else if (leesKey == '*')
+  {
+    WachtwoordCheck();
+  }
+  else if (leesKey == 'A')
+  {
+    SluitKluis(KluisjeA, geslotenA);
+  }
+  else if (leesKey == 'B')
+  {
+    SluitKluis(KluisjeB, geslotenB);
+  }
+  else if (leesKey)
+  {
     Serial.print(leesKey);
-    codeNummer += leesKey;
+    keyCombinatie += leesKey;
   }
-
-  //array maken van wachtwoord als je het de loop weer uncomment. ook de "wachtwoordCheck" variable bovenaan uncommenten.
-  // while (codeNummer != wachtwoord[wachtwoordCheck])
-  // {
-  //   if (codeNummer == wachtwoord[wachtwoordCheck])
-  //   {
-    if (codeNummer == wachtwoord)
-    {
-      delay(500);
-      OpenKluis();
-      codeNummer = "";
-      Serial.println("");
-    }
-    
-  //   }
-  //   wachtwoordCheck++;
-  //   if (wachtwoord[wachtwoordCheck] == "")
-  //   {
-  //     wachtwoordCheck = 0;
-  //     break;
-  //   }
-  // }
 }
 
 
@@ -92,6 +126,5 @@ void codeStudentnummer(char leesKey){
 void loop() {
   // put your main code here, to run repeatedly:
   char leesKey = customKeypad.getKey();
-  codeStudentnummer(leesKey);
-  SluitKluis(leesKey);
+  CheckKey(leesKey);
 } 
