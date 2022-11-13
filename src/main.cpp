@@ -97,27 +97,38 @@ void WachtwoordCheck(){
 
 
 void CheckKey(char leesKey){
-  if (leesKey == '#')
+  // Van if statement een switch gemaakt. 
+  switch (leesKey)
   {
+  case '#':
+    Serial.println(leesKey);
     SluitKluis(KluisjeA, geslotenA);
     SluitKluis(KluisjeB, geslotenB);
-  }
-  else if (leesKey == '*')
-  {
+    break;
+  case '*':
+    Serial.println(leesKey);
     WachtwoordCheck();
-  }
-  else if (leesKey == 'A')
-  {
+    break;
+  case 'A':
+    Serial.println(leesKey);
     SluitKluis(KluisjeA, geslotenA);
-  }
-  else if (leesKey == 'B')
-  {
+    break;
+  case 'B':
+    Serial.println(leesKey);
     SluitKluis(KluisjeB, geslotenB);
-  }
-  else if (leesKey)
-  {
+    break;
+  case 'C':
+    Serial.println(leesKey);
+    SluitKluis(KluisjeA, geslotenA);
+    break;
+  case 'D':
+    Serial.println(leesKey);
+    SluitKluis(KluisjeB, geslotenB);
+    break;
+  default:
     Serial.print(leesKey);
     keyCombinatie += leesKey;
+    break;
   }
 }
 
