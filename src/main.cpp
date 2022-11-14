@@ -1,12 +1,19 @@
 #include <Arduino.h>
-#include "../lib/Servo/Servo.h"
-#include "../lib/Keypad/Keypad.h"
+#include "Servo.h"
+#include "Keypad.h"
+#include "Dweet.h"
+#include "ESP8266.h"
+
+#define ESP8266_PIN_RX	2
+#define ESP8266_PIN_TX	3
+
+
 
 Servo KluisjeA;
 Servo KluisjeB;
 int geslotenA = 140;
 int openA = 42;
-int geslotenB = 161;
+int geslotenB = 180;
 int openB = 90;
 
 const byte ROWS = 4; //four rows
@@ -24,8 +31,8 @@ byte colPins[COLS] = {9, 8, 7, 6};  //connect to the column pinouts of the keypa
 //initialize an instance of class NewKeypad
 Keypad customKeypad = Keypad( makeKeymap(hexaKeys), rowPins, colPins, ROWS, COLS);
 
-String wachtwoordA[] = { "-0000", "-1234", "-4865200" };
-String wachtwoordB[] = { "-1111", "-4321", "-4802799" };
+String wachtwoordA[] = { "-0000", "-1234" };
+String wachtwoordB[] = { "-1111", "-4321" };
 String keyCombinatie = "-";
 
 int wachtwoordCheck = 0;
@@ -35,42 +42,49 @@ void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600);
   Serial.println("Hello World");
-  KluisjeA.attach(2);
-  KluisjeB.attach(3);
+  KluisjeA.attach(4);
+  KluisjeB.attach(5);
   KluisjeA.write(geslotenA);
   KluisjeB.write(geslotenB);
 }
 
 
 
-// draai de Servo horizontaal
+// draai de Servo horizontaal om de kluisdeur te sluiten
 void SluitKluis(Servo kluis, int slotkluis){
-    delay(500);
-    kluis.write(slotkluis);
-    keyCombinatie = "-";
-    Serial.println("");
+  delay(500);
+  kluis.write(slotkluis);
+  keyCombinatie = "-";
+  Serial.println("Er is een kluis gesloten");
+  Serial.println("");
 }
 
 
 
-// draai de Servo verticaal 
+// draai de Servo verticaal om de kluisdeur te kunnen openen
 void OpenKluis(Servo kluis, int slotkluis){
   delay(500);
   kluis.write(slotkluis);
   keyCombinatie = "-";
+  Serial.println("Er is een kluis geopent");
   Serial.println("");
 }
 
 
 
 void WachtwoordCheck(){
+  // deze functie checkt of de ingevoerde code klopt met een wachtwoord van een kluisje
   if (keyCombinatie == wachtwoordA[wachtwoordCheck])
     {
+      Serial.println("if - kluisA geopent");
       OpenKluis(KluisjeA, openA);
+      return;
     }
-  else if (keyCombinatie == wachtwoordB[wachtwoordCheck])
+  if (keyCombinatie == wachtwoordB[wachtwoordCheck])
     {
+      Serial.println("if - kluisB geopent");
       OpenKluis(KluisjeB, openB);
+      return;
     }
 
   while (keyCombinatie != wachtwoordA[wachtwoordCheck] && keyCombinatie != wachtwoordB[wachtwoordCheck])
@@ -78,17 +92,19 @@ void WachtwoordCheck(){
       wachtwoordCheck++;
       if (keyCombinatie == wachtwoordA[wachtwoordCheck])
       {
+        Serial.println("loop - kluisA geopent");
         OpenKluis(KluisjeA, openA);
       }
-      if (keyCombinatie == wachtwoordB[wachtwoordCheck])
+      else if (keyCombinatie == wachtwoordB[wachtwoordCheck])
       {
+        Serial.println("loop - kluisB geopent");
         OpenKluis(KluisjeB, openB);
       }
       else if (wachtwoordA[wachtwoordCheck] == "" && wachtwoordB[wachtwoordCheck] == "")
       {
         wachtwoordCheck = 0;
         keyCombinatie = "-";
-        Serial.println("");
+        Serial.println("wachtwoord incorrect");
         break;
       }
     }
@@ -97,39 +113,55 @@ void WachtwoordCheck(){
 
 
 void CheckKey(char leesKey){
-  // Van if statement een switch gemaakt. 
-  switch (leesKey)
+  // Deze if statement zorgt ervoor dat de juiste functie wordt uitgevoerd bij de klik op een bepaalde key
+  if (leesKey == '#')
   {
-  case '#':
     Serial.println(leesKey);
     SluitKluis(KluisjeA, geslotenA);
     SluitKluis(KluisjeB, geslotenB);
-    break;
-  case '*':
+    Serial.println("Alle kluisjes zijn gesloten");
+    Serial.println("");
+  }
+  else if (leesKey == '*')
+  {
     Serial.println(leesKey);
     WachtwoordCheck();
-    break;
-  case 'A':
+  }
+  else if (leesKey == 'A')
+  {
     Serial.println(leesKey);
+    Serial.println("KluisA gesloten");
     SluitKluis(KluisjeA, geslotenA);
-    break;
-  case 'B':
+  }
+  else if (leesKey == 'B')
+  {
     Serial.println(leesKey);
+    Serial.println("KluisB gesloten");
     SluitKluis(KluisjeB, geslotenB);
-    break;
-  case 'C':
+  }
+  else if (leesKey == 'C')
+  {
     Serial.println(leesKey);
+    Serial.println("KluisA gesloten");
     SluitKluis(KluisjeA, geslotenA);
-    break;
-  case 'D':
+  }
+  else if (leesKey == 'D')
+  {
     Serial.println(leesKey);
+    Serial.println("KluisB gesloten");
     SluitKluis(KluisjeB, geslotenB);
-    break;
-  default:
+  }
+  else if (leesKey)
+  {
     Serial.print(leesKey);
     keyCombinatie += leesKey;
-    break;
   }
+}
+
+
+
+void consoleReadWrite(){
+
 }
 
 
@@ -138,4 +170,5 @@ void loop() {
   // put your main code here, to run repeatedly:
   char leesKey = customKeypad.getKey();
   CheckKey(leesKey);
+  consoleReadWrite();
 } 
