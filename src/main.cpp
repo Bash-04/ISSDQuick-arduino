@@ -1,13 +1,6 @@
 #include <Arduino.h>
 #include "Servo.h"
 #include "Keypad.h"
-#include "Dweet.h"
-#include "ESP8266.h"
-
-#define ESP8266_PIN_RX	2
-#define ESP8266_PIN_TX	3
-
-
 
 Servo KluisjeA;
 Servo KluisjeB;
@@ -36,6 +29,12 @@ String wachtwoordB[] = { "-1111", "-4321" };
 String keyCombinatie = "-";
 
 int wachtwoordCheck = 0;
+
+String productA = "";
+String productB = "";
+String gereserveerdProductA = "";
+String gereserveerdProductB = "";
+String studentnummer = "";
 
 // Dit is de setup, de eerste code die uitgevoerd wordt
 void setup() {
@@ -171,4 +170,4 @@ void loop() {
   char leesKey = customKeypad.getKey();
   CheckKey(leesKey);
   consoleReadWrite();
-} 
+}
