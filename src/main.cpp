@@ -7,7 +7,7 @@ Servo KluisjeB;
 int geslotenA = 140;
 int openA = 42;
 int geslotenB = 180;
-int openB = 90;
+int openB = 110;
 
 const byte ROWS = 4; //four rows
 const byte COLS = 4; //four columns
@@ -24,7 +24,7 @@ byte colPins[COLS] = {9, 8, 7, 6};  //connect to the column pinouts of the keypa
 //initialize an instance of class NewKeypad
 Keypad customKeypad = Keypad( makeKeymap(hexaKeys), rowPins, colPins, ROWS, COLS);
 
-String wachtwoordA[] = { "-0000", "-1234" };
+String wachtwoordA[] = { "-24", "-0000" , "-1234" };
 String wachtwoordB[] = { "-1111", "-4321" };
 String keyCombinatie = "-";
 
