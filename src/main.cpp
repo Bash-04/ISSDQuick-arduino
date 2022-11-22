@@ -6,8 +6,8 @@ Servo KluisjeA;
 Servo KluisjeB;
 int geslotenA = 140;
 int openA = 42;
-int geslotenB = 180;
-int openB = 110;
+int geslotenB = 188;
+int openB = 95;
 
 const byte ROWS = 4; //four rows
 const byte COLS = 4; //four columns
@@ -24,11 +24,9 @@ byte colPins[COLS] = {9, 8, 7, 6};  //connect to the column pinouts of the keypa
 //initialize an instance of class NewKeypad
 Keypad customKeypad = Keypad( makeKeymap(hexaKeys), rowPins, colPins, ROWS, COLS);
 
-String wachtwoordA[] = { "-24", "-0000" , "-1234" };
-String wachtwoordB[] = { "-1111", "-4321" };
+String wachtwoordA = "-24";
+String wachtwoordB = "-0";
 String keyCombinatie = "-";
-
-int wachtwoordCheck = 0;
 
 String productA = "";
 String productB = "";
@@ -73,40 +71,21 @@ void OpenKluis(Servo kluis, int slotkluis){
 
 void WachtwoordCheck(){
   // deze functie checkt of de ingevoerde code klopt met een wachtwoord van een kluisje
-  if (keyCombinatie == wachtwoordA[wachtwoordCheck])
+  Serial.println("wwcheck: " + keyCombinatie + ", " + wachtwoordA);
+  if (keyCombinatie == wachtwoordA)
     {
       Serial.println("if - kluisA geopent");
       OpenKluis(KluisjeA, openA);
-      return;
     }
-  if (keyCombinatie == wachtwoordB[wachtwoordCheck])
+  else if (keyCombinatie == wachtwoordB)
     {
       Serial.println("if - kluisB geopent");
       OpenKluis(KluisjeB, openB);
-      return;
     }
-
-  while (keyCombinatie != wachtwoordA[wachtwoordCheck] && keyCombinatie != wachtwoordB[wachtwoordCheck])
-    {
-      wachtwoordCheck++;
-      if (keyCombinatie == wachtwoordA[wachtwoordCheck])
-      {
-        Serial.println("loop - kluisA geopent");
-        OpenKluis(KluisjeA, openA);
-      }
-      else if (keyCombinatie == wachtwoordB[wachtwoordCheck])
-      {
-        Serial.println("loop - kluisB geopent");
-        OpenKluis(KluisjeB, openB);
-      }
-      else if (wachtwoordA[wachtwoordCheck] == "" && wachtwoordB[wachtwoordCheck] == "")
-      {
-        wachtwoordCheck = 0;
-        keyCombinatie = "-";
-        Serial.println("wachtwoord incorrect");
-        break;
-      }
-    }
+  else{
+      keyCombinatie = "-";
+      Serial.println("wachtwoord incorrect");
+  }
 }
 
 
@@ -124,7 +103,11 @@ void CheckKey(char leesKey){
   else if (leesKey == '*')
   {
     Serial.println(leesKey);
+    Serial.println("Voor wA: " + wachtwoordA);
+    Serial.println("Voor keyCombi: " + keyCombinatie);
     WachtwoordCheck();
+    Serial.println("Na wA: " + wachtwoordA);
+    Serial.println("Na keyCombi: " + keyCombinatie);
   }
   else if (leesKey == 'A')
   {
@@ -160,7 +143,20 @@ void CheckKey(char leesKey){
 
 
 void consoleReadWrite(){
-
+  if (Serial.available() > 0) { 
+    char received = Serial.read();
+    if (received == '\n')
+    {
+      Serial.println(keyCombinatie);
+      wachtwoordA = "" + keyCombinatie;
+      Serial.println(wachtwoordA);
+      keyCombinatie = "-";
+    }
+    else
+    {
+      keyCombinatie += received;
+    }
+  }
 }
 
 
