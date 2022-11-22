@@ -9,6 +9,11 @@ int openA = 42;
 int geslotenB = 188;
 int openB = 95;
 
+String serialCommand = "";
+bool   communicationStarted = false;
+const char  startChar = '#';
+const char  endChar  = '%';
+
 const byte ROWS = 4; //four rows
 const byte COLS = 4; //four columns
 //define the cymbols on the buttons of the keypads
@@ -25,7 +30,7 @@ byte colPins[COLS] = {9, 8, 7, 6};  //connect to the column pinouts of the keypa
 Keypad customKeypad = Keypad( makeKeymap(hexaKeys), rowPins, colPins, ROWS, COLS);
 
 String wachtwoordA = "-24";
-String wachtwoordB = "-0";
+String wachtwoordB = "-10";
 String keyCombinatie = "-";
 
 String productA = "";
@@ -140,25 +145,35 @@ void CheckKey(char leesKey){
   }
 }
 
-
+void HandleMessage(String command) {
+  wachtwoordA = command;
+}
 
 void consoleReadWrite(){
   if (Serial.available() > 0) { 
-    char received = Serial.read();
-    if (received == '\n')
+    char readByte = Serial.read();
+    if (readByte == startChar)
     {
-      Serial.println(keyCombinatie);
-      wachtwoordA = "" + keyCombinatie;
-      Serial.println(wachtwoordA);
-      keyCombinatie = "-";
+      serialCommand = "-";         // leeg buffer
+      communicationStarted = true;// markeer als gestart
+      // Serial.println(keyCombinatie);
+      // wachtwoordA = "" + keyCombinatie;
+      // Serial.println(wachtwoordA);
+      // keyCombinatie = "-";
     }
-    else
+    else if (communicationStarted)
     {
-      keyCombinatie += received;
+      if (readByte == endChar)
+      {
+        communicationStarted = false;      // Stop communicatie
+        HandleMessage(serialCommand);   // Voor actie uit op basis van bericht
+      }
+      else {
+        serialCommand += readByte;
+      }
     }
   }
 }
-
 
 
 void loop() {
