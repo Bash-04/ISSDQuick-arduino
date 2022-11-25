@@ -4,10 +4,10 @@
 
 Servo KluisjeA;
 Servo KluisjeB;
-int geslotenA = 140;
-int openA = 42;
-int geslotenB = 188;
-int openB = 95;
+int geslotenA = 188;
+int openA = 95;
+int geslotenB = 140;
+int openB = 42;
 
 String serialCommand = "";
 bool   communicationStarted = false;
