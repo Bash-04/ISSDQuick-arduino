@@ -81,11 +81,13 @@ void WachtwoordCheck(){
     {
       Serial.println("if - kluisA geopent");
       OpenKluis(KluisjeA, openA);
+      wachtwoordA = "-";
     }
   else if (keyCombinatie == wachtwoordB)
     {
       Serial.println("if - kluisB geopent");
       OpenKluis(KluisjeB, openB);
+      wachtwoordB = "-";
     }
   else{
       keyCombinatie = "-";
